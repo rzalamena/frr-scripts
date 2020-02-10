@@ -18,7 +18,7 @@
 set -e
 
 # Set variables.
-JOB_NUM=${JOB_NUM:-1}
+JOBS=${JOBS:-1}
 ASAN=${ASAN:-no}
 SYSTEMD=${SYSTEMD:-no}
 
@@ -62,4 +62,4 @@ if [ ! -f Makefile ]; then
     --with-pkg-git-version
 fi
 
-make -j${JOB_NUM}
+make -j${JOBS}
