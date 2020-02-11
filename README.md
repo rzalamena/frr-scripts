@@ -12,10 +12,11 @@ Scripts to automate repeated commands when developing and testing FRR.
 
     ```sh
     # The compile script supports two toggles:
-    env SYSTEMD=no ASAN=no ./compile.sh
+    env SYSTEMD=no ASAN=no JOBS=$(grep -c 'processor' /proc/cpuinfo) ./compile.sh
 
-    # SYSTEMD adds support for systemd (requires libsystemd-dev package).
     # ASAN compiles FRR with address sanitizer (requires modern compiler).
+    # JOBS amount of parallel compiler instances we should use.
+    # SYSTEMD adds support for systemd (requires libsystemd-dev package).
     ```
 
 4.  Install FRR.
