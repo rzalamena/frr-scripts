@@ -13,6 +13,7 @@ Now we need to create the virtual ethernet pair interface to connect the new
 VRF with FRR:
 
     ip link add bgp-net0 type veth peer name bgp-peer0
+    ip link set bgp-peer0 vrf bgp-vrf0
     ip link set bgp-net0 up
     ip link set bgp-peer0 up
 
