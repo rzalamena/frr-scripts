@@ -77,3 +77,24 @@ FRR:
     router bgp 100
      neighbor 192.168.100.2 remote-as 100
     !
+
+
+ExaBGP with automatic prefix generation
+---------------------------------------
+
+    process send {
+      run ruby /path/to/script/send-routes.rb 192.168.100.2 300000;
+      encoder text;
+    }
+
+    neighbor 192.168.100.1 {
+      local-address 192.168.100.2;
+      local-as 100;
+      peer-as 100;
+
+      api {
+        processes [ send ];
+      }
+    }
+
+> Where **300000** is the number of routes you want to generate.
