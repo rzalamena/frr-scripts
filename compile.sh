@@ -18,8 +18,11 @@
 set -e
 
 # Set variables.
-JOBS=${JOBS:-1}
+JOBS=${JOBS:-2}
 ASAN=${ASAN:-no}
+DOC=${DOC:-no}
+FPM=${FPM:-no}
+SNMP=${SNMP:-no}
 SYSTEMD=${SYSTEMD:-no}
 
 # Bootstrap the configure file.
@@ -28,22 +31,32 @@ if [ ! -f configure ]; then
 fi
 
 # Configure FRR build.
+FLAGS=()
 if [ $ASAN = 'yes' ]; then
-  ASAN_FLAG='--enable-address-sanitizer=yes'
-else
-  ASAN_FLAG='--enable-address-sanitizer=no'
+  FLAGS+=(--enable-address-sanitizer)
+fi
+
+if [ $DOC = 'yes' ]; then
+  FLAGS+=(--enable-doc)
+fi
+
+if [ $FPM = 'yes' ]; then
+  FLAGS+=(--enable-fpm)
+fi
+
+if [ $SNMP = 'yes' ]; then
+  FLAGS+=(--enable-snmp=agentx)
 fi
 
 if [ $SYSTEMD = 'yes' ]; then
-  SYSTEMD_FLAG='--enable-systemd=yes'
+  FLAGS+=(--enable-systemd)
 else
-  SYSTEMD_FLAG='--enable-systemd=no'
+  FLAGS+=(--enable-systemd=no)
 fi
 
 if [ ! -f Makefile ]; then
   ./configure \
-    ${ASAN_FLAG} \
-    --enable-doc \
+    ${FLAGS[@]} \
     --enable-multipath=64 \
     --prefix=/usr \
     --localstatedir=/var/run/frr \
@@ -53,12 +66,10 @@ if [ ! -f Makefile ]; then
     --enable-user=frr \
     --enable-group=frr \
     --enable-vty-group=frrvty \
-    --enable-snmp=agentx \
     --enable-sharpd \
     --enable-configfile-mask=0640 \
     --enable-logfile-mask=0640 \
     --enable-dev-build \
-    ${SYSTEMD_FLAG} \
     --with-pkg-git-version
 fi
 
