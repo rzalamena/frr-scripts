@@ -24,6 +24,7 @@ DOC=${DOC:-no}
 FPM=${FPM:-no}
 SNMP=${SNMP:-no}
 SYSTEMD=${SYSTEMD:-no}
+SCAN_BUILD=${SCAN_BUILD:-no}
 
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
@@ -73,4 +74,8 @@ if [ ! -f Makefile ]; then
     --with-pkg-git-version
 fi
 
-make -j${JOBS}
+if [ $SCAN_BUILD = 'no' ]; then
+  make -j$JOBS
+else
+  scan-build -maxloop 128 make -j$JOBS
+fi
