@@ -16,13 +16,15 @@
 
 usage() {
   cat <<EOF
-Usage: $0 [-h] [--help] node command arg...
+Usage: $0 [-hj] [--help] [--json] node command arg...
 
 Options:
   --help or -h: this help message.
+  --json or -j: JSON format the output using 'python -m json.tool'.
 
-Example:
+Examples:
   $0 r1 vtysh -c 'show running-config'
+  $0 --json r1 vtysh -c 'show bfd peers json'
 EOF
   exit 1
 }
@@ -37,11 +39,12 @@ if [ $(id -u) -ne 0 ]; then
 fi
 
 # Handle arguments.
-longopts='help'
-shortopts='h'
+longopts='help,json'
+shortopts='hj'
 
 args=''
 parameters=''
+json_format=''
 
 # Filter arguments: they are only valid in the beginning.
 while [ $# -ne 0 ]; do
@@ -81,6 +84,10 @@ options="$options $parameters"
 set -- $options
 while [ $# -ne 0 ]; do
   case "$1" in
+    -j | --json)
+      json_format='| python -m json.tool'
+      shift
+      ;;
     -h | --help)
       usage
       shift
@@ -110,6 +117,6 @@ if [ -z $target ]; then
   exit 1
 fi
 
-$sudo nsenter --target $target --net --mount -- sh -c "$*"
+$sudo nsenter --target $target --net --mount -- sh -c "$* $json_format"
 
 exit 0
