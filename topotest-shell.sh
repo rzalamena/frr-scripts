@@ -108,7 +108,7 @@ shift
 target=$( \
   $sudo lsns --type net \
   | grep 'mininet' \
-  | grep "$node" \
+  | grep -w "$node" \
   | sed -r 's/ +/ /g' \
   | cut -d ' ' -f 4)
 
