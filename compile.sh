@@ -42,7 +42,7 @@ flags=()
 jobs=2
 scan_build=no
 
-longopts='asan,bear,doc,fpm,help,jobs:,scan-build,snmp,systemd'
+longopts='asan,bear,doc,fpm,grpc,help,jobs:,scan-build,snmp,systemd'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -67,6 +67,10 @@ while [ $# -ne 0 ]; do
       ;;
     --fpm)
       flags+=(--enable-fpm)
+      shift
+      ;;
+    --grpc)
+      flags+=(--enable-grpc)
       shift
       ;;
     --jobs)
