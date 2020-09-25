@@ -17,16 +17,20 @@
 usage() {
   cat <<EOF
 Usage: $0
-  [-h] [--asan] [--bear] [--doc] [--fpm] [--help] [--jobs=NUMBER] [--snmp]
-  [--systemd]
+  [-h] [--asan] [--bear] [--doc] [--fpm] [--grpc] [--help] [--jobs=NUMBER]
+  [--minimal] [--scan-build] [--snmp] [--systemd]
 
 Options:
   --asan: build FRR with address sanitizer.
   --bear: use 'bear' to generate compile_commands.json database.
   --doc: configure FRR to enable documentation builds (requires sphinx).
   --fpm: build FRR with forwarding plane manager.
+  --grpc: enable gRPC support.
   --help or -h: this help message.
   --jobs: amount of parallel build jobs (defaults to $jobs).
+  --minimal: don't build `babeld`, `eigrpd`, `ldpd`, `nhrpd`, `pbrd`, `ripd`,
+             `ripngd` and `vrrpd`.
+  --scan-build: use clang static analyzer (compilation is way slower).
   --snmp: build FRR with SNMP support.
   --systemd: build FRR with systemd support.
 EOF
@@ -42,7 +46,7 @@ flags=()
 jobs=2
 scan_build=no
 
-longopts='asan,bear,doc,fpm,grpc,help,jobs:,scan-build,snmp,systemd'
+longopts='asan,bear,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,systemd'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -76,6 +80,17 @@ while [ $# -ne 0 ]; do
     --jobs)
       jobs="$2"
       shift 2
+      ;;
+    --minimal)
+      flags+=(--disable-babel)
+      flags+=(--disable-eigrpd)
+      flags+=(--disable-ldpd)
+      flags+=(--disable-nhrpd)
+      flags+=(--disable-pbrd)
+      flags+=(--disable-ripd)
+      flags+=(--disable-ripngd)
+      flags+=(--disable-vrrpd)
+      shift
       ;;
     --scan-build)
       scan_build=yes
