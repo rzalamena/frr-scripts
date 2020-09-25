@@ -14,7 +14,7 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-rm -r Makefile Makefile.in aclocal.m4 alpine/APKBUILD autom4te.cache/ \
+rm -rf Makefile Makefile.in aclocal.m4 alpine/APKBUILD autom4te.cache/ \
   */.deps/ */.dirstamp */.libs/ */*.{a,la,o} */*_clippy.c \
   bgpd/rfp-example/rfptest/*.o \
   bgpd/rfp-example/rfptest/{.deps,.libs,.dirstamp} \
