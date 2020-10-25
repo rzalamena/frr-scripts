@@ -28,8 +28,8 @@ Options:
   --grpc: enable gRPC support.
   --help or -h: this help message.
   --jobs: amount of parallel build jobs (defaults to $jobs).
-  --minimal: don't build `babeld`, `eigrpd`, `ldpd`, `nhrpd`, `pbrd`, `ripd`,
-             `ripngd` and `vrrpd`.
+  --minimal: don't build 'babeld', 'eigrpd', 'ldpd', 'nhrpd', 'pbrd', 'ripd',
+             'ripngd' and 'vrrpd'.
   --scan-build: use clang static analyzer (compilation is way slower).
   --snmp: build FRR with SNMP support.
   --systemd: build FRR with systemd support.
@@ -67,6 +67,7 @@ while [ $# -ne 0 ]; do
       ;;
     --doc)
       flags+=(--enable-doc)
+      flags+=(--enable-doc-html)
       shift
       ;;
     --fpm)
@@ -82,7 +83,7 @@ while [ $# -ne 0 ]; do
       shift 2
       ;;
     --minimal)
-      flags+=(--disable-babel)
+      flags+=(--disable-babeld)
       flags+=(--disable-eigrpd)
       flags+=(--disable-ldpd)
       flags+=(--disable-nhrpd)
@@ -150,7 +151,7 @@ if [ $scan_build = 'no' ]; then
     bear make --jobs=$jobs --load-average=$jobs
   fi
 else
-  scan-build -maxloop 128 make --jobs=$jobs
+  scan-build make --jobs=$jobs --load-average=$jobs
 fi
 
 exit 0
