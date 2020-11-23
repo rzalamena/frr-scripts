@@ -17,12 +17,11 @@
 usage() {
   cat <<EOF
 Usage: $0
-  [-h] [--asan] [--bear] [--doc] [--fpm] [--grpc] [--help] [--jobs=NUMBER]
+  [-h] [--asan] [--doc] [--fpm] [--grpc] [--help] [--jobs=NUMBER]
   [--minimal] [--scan-build] [--snmp] [--systemd]
 
 Options:
   --asan: build FRR with address sanitizer.
-  --bear: use 'bear' to generate compile_commands.json database.
   --doc: configure FRR to enable documentation builds (requires sphinx).
   --fpm: build FRR with forwarding plane manager.
   --grpc: enable gRPC support.
@@ -41,12 +40,11 @@ EOF
 set -e
 
 # Set variables.
-bear=no
 flags=()
 jobs=2
 scan_build=no
 
-longopts='asan,bear,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,systemd'
+longopts='asan,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,systemd'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -59,10 +57,6 @@ while [ $# -ne 0 ]; do
   case "$1" in
     --asan)
       flags+=(--enable-address-sanitizer);
-      shift
-      ;;
-    --bear)
-      bear=yes
       shift
       ;;
     --doc)
@@ -115,11 +109,6 @@ while [ $# -ne 0 ]; do
   esac
 done
 
-if [ $bear = 'yes' -a $scan_build = 'yes' ]; then
-  echo "'bear' at the same time as 'scan-build'."
-  exit 1
-fi
-
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
   ./bootstrap.sh
@@ -145,11 +134,7 @@ if [ ! -f Makefile ]; then
 fi
 
 if [ $scan_build = 'no' ]; then
-  if [ $bear = 'no' ]; then
-    make --jobs=$jobs --load-average=$jobs
-  else
-    bear make --jobs=$jobs --load-average=$jobs
-  fi
+  make --jobs=$jobs --load-average=$jobs
 else
   scan-build make --jobs=$jobs --load-average=$jobs
 fi
