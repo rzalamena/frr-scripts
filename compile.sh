@@ -43,6 +43,22 @@ set -e
 flags=()
 jobs=2
 scan_build=no
+default_flags=(
+  --enable-multipath=64
+  --prefix=/usr
+  --localstatedir=/var/run/frr
+  --sysconfdir=/etc/frr
+  --enable-exampledir=/usr/share/doc/frr/examples
+  --sbindir=/usr/lib/frr
+  --enable-user=frr
+  --enable-group=frr
+  --enable-vty-group=frrvty
+  --enable-sharpd
+  --enable-configfile-mask=0640
+  --enable-logfile-mask=0640
+  --enable-dev-build
+  --with-pkg-git-version
+)
 
 longopts='asan,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,systemd'
 shortopts='h'
@@ -109,30 +125,27 @@ while [ $# -ne 0 ]; do
   esac
 done
 
+# Include the defaults.
+flags+=${default_flags[@]}
+
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
   ./bootstrap.sh
 fi
 
-if [ ! -f Makefile ]; then
-  ./configure \
-    ${flags[@]} \
-    --enable-multipath=64 \
-    --prefix=/usr \
-    --localstatedir=/var/run/frr \
-    --sysconfdir=/etc/frr \
-    --enable-exampledir=/usr/share/doc/frr/examples \
-    --sbindir=/usr/lib/frr \
-    --enable-user=frr \
-    --enable-group=frr \
-    --enable-vty-group=frrvty \
-    --enable-sharpd \
-    --enable-configfile-mask=0640 \
-    --enable-logfile-mask=0640 \
-    --enable-dev-build \
-    --with-pkg-git-version
+# Get into build outside of the source directory.
+if [ ! -d build ]; then
+  mkdir build
 fi
 
+cd build
+
+# Configure if not configured.
+if [ ! -f Makefile ]; then
+  ../configure ${flags[@]}
+fi
+
+# Build.
 if [ $scan_build = 'no' ]; then
   make --jobs=$jobs --load-average=$jobs
 else
