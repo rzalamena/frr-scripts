@@ -39,6 +39,9 @@ EOF
 # Quit on errors.
 set -e
 
+currentdir=$(pwd)
+builddir="$currentdir/build"
+
 # Set variables.
 flags=()
 jobs=$(expr $(nproc) + 1)
@@ -126,7 +129,7 @@ while [ $# -ne 0 ]; do
 done
 
 # Include the defaults.
-flags+=${default_flags[@]}
+flags+=" ${default_flags[@]}"
 
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
@@ -134,15 +137,15 @@ if [ ! -f configure ]; then
 fi
 
 # Get into build outside of the source directory.
-if [ ! -d build ]; then
-  mkdir build
+if [ ! -d "$builddir" ]; then
+  mkdir -p "$builddir"
 fi
 
-cd build
+cd "$builddir"
 
 # Configure if not configured.
 if [ ! -f Makefile ]; then
-  ../configure ${flags[@]}
+  "../configure" ${flags[@]}
 fi
 
 # Build.

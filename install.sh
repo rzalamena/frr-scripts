@@ -1,11 +1,11 @@
 #!/bin/sh
 #
 # Copyright 2020 Rafael F. Zalamena
-# 
+#
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
 # copyright notice and this permission notice appear in all copies.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
 # REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
 # AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
@@ -55,6 +55,14 @@ while [ $# -ne 0 ]; do
   esac
 done
 
+srcdir=$(pwd)
+
+# If build directory exists, then use it.
+if [ -d build ]; then
+  echo '=> Using build directory'
+  cd build
+fi
+
 # Install FRR binaries.
 make install
 
@@ -65,12 +73,14 @@ fi
 
 if [ ! -d /etc/frr ]; then
   install -m 775 -o frr -g frrvty -d /etc/frr
-  install -m 640 -o frr -g frrvty tools/etc/frr/vtysh.conf /etc/frr/vtysh.conf
-  install -m 640 -o frr -g frr tools/etc/frr/frr.conf /etc/frr/frr.conf
-  install -m 640 -o frr -g frr tools/etc/frr/daemons.conf /etc/frr/daemons.conf
-  install -m 640 -o frr -g frr tools/etc/frr/daemons /etc/frr/daemons
+  install -m 640 -o frr -g frrvty ${srcdir}/tools/etc/frr/vtysh.conf \
+    /etc/frr/vtysh.conf
+  install -m 640 -o frr -g frr ${srcdir}/tools/etc/frr/frr.conf \
+    /etc/frr/frr.conf
+  install -m 640 -o frr -g frr ${srcdir}/tools/etc/frr/daemons \
+    /etc/frr/daemons
 fi
 
 if [ $systemd = 'yes' -a ! -f /etc/systemd/system/frr.service ]; then
-  install -m 644 tools/frr.service /etc/systemd/system/frr.service
+  install -m 644 ${srcdir}/tools/frr.service /etc/systemd/system/frr.service
 fi
