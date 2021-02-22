@@ -41,7 +41,7 @@ set -e
 
 # Set variables.
 flags=()
-jobs=2
+jobs=$(expr $(nproc) + 1)
 scan_build=no
 default_flags=(
   --enable-multipath=64
