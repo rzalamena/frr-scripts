@@ -58,6 +58,7 @@ default_flags=(
   --enable-user=frr
   --enable-group=frr
   --enable-vty-group=frrvty
+  --enable-nhrpd
   --enable-sharpd
   --enable-configfile-mask=0640
   --enable-logfile-mask=0640
