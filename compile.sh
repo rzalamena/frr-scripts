@@ -18,7 +18,7 @@ usage() {
   cat <<EOF
 Usage: $0
   [-h] [--asan] [--doc] [--fpm] [--grpc] [--help] [--jobs=NUMBER]
-  [--minimal] [--scan-build] [--snmp] [--systemd]
+  [--minimal] [--scan-build] [--snmp] [--soft-clean] [--systemd]
 
 Options:
   --asan: build FRR with address sanitizer.
@@ -31,6 +31,7 @@ Options:
              'ripngd' and 'vrrpd'.
   --scan-build: use clang static analyzer (compilation is way slower).
   --snmp: build FRR with SNMP support.
+  --soft-clean: don't clean everything just the necessary to run autotools
   --systemd: build FRR with systemd support.
 EOF
   exit 1
@@ -46,6 +47,7 @@ builddir="$currentdir/build"
 flags=()
 jobs=$(expr $(nproc) + 1)
 scan_build=no
+soft_clean=no
 default_flags=(
   --enable-multipath=64
   --prefix=/usr
@@ -63,7 +65,7 @@ default_flags=(
   --with-pkg-git-version
 )
 
-longopts='asan,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,systemd'
+longopts='asan,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,soft-clean,systemd'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -114,6 +116,10 @@ while [ $# -ne 0 ]; do
       flags+=(--enable-snmp=agentx)
       shift
       ;;
+    --soft-clean)
+      soft_clean=yes
+      shift
+      ;;
     --systemd)
       flags+=(--enable-systemd)
       shift
@@ -130,6 +136,13 @@ done
 
 # Include the defaults.
 flags+=" ${default_flags[@]}"
+
+if [ "$soft_clean" = 'yes' ]; then
+  rm -rf aclocal.m4 autom4te.cache compile config.guess config.h.in{,~} \
+    config.sub depcomp install-sh ltmain.sh m4/ac m4/libtool.m4 \
+    m4/ltoptions.m4 m4/ltsugar.m4 m4/ltversion.m4 m4/lt~obsolete.m4 \
+    missing test-driver ylwrap configure Makefile.in
+fi
 
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
