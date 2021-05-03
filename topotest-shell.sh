@@ -85,7 +85,7 @@ set -- $options
 while [ $# -ne 0 ]; do
   case "$1" in
     -j | --json)
-      json_format='| python -m json.tool'
+      json_format='| python3 -m json.tool'
       shift
       ;;
     -h | --help)
