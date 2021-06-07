@@ -94,7 +94,8 @@ flags+=" ${default_flags[@]}"
 
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
-  ./bootstrap.sh
+  echo "=> bootstrap ..."
+  ./bootstrap.sh >/dev/null
 fi
 
 # Get into build outside of the source directory.
@@ -106,11 +107,13 @@ cd "$build_dir"
 
 # Configure if not configured.
 if [ ! -f Makefile ]; then
-  ../configure ${flags[@]}
+  echo "=> configure ..."
+  ../configure ${flags[@]} >/dev/null
 fi
 
 # Build.
-make --jobs=$jobs --load-average=$jobs
+echo "=> make --jobs=$jobs ..."
+make --jobs=$jobs --load-average=$jobs >/dev/null
 
 # Install in temporary directory.
 install_dir=$(mktemp -d)

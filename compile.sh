@@ -147,7 +147,8 @@ fi
 
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
-  ./bootstrap.sh
+  echo "=> Running bootstrap ..."
+  ./bootstrap.sh >/dev/null
 fi
 
 # Get into build outside of the source directory.
@@ -159,14 +160,15 @@ cd "$builddir"
 
 # Configure if not configured.
 if [ ! -f Makefile ]; then
-  "../configure" ${flags[@]}
+  echo "=> Running configure ..."
+  "../configure" ${flags[@]} >/dev/null
 fi
 
 # Build.
 if [ $scan_build = 'no' ]; then
-  make --jobs=$jobs --load-average=$jobs
+  make --jobs=$jobs --load-average=$jobs >/dev/null
 else
-  scan-build make --jobs=$jobs --load-average=$jobs
+  scan-build make --jobs=$jobs --load-average=$jobs >/dev/null
 fi
 
 exit 0

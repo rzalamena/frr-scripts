@@ -128,14 +128,17 @@ cd dev
 
 # Configure if not configured.
 if [ ! -f Makefile ]; then
-  ../configure ${flags[@]} || \
+  echo "=> configure ..."
+  ../configure ${flags[@]} >/dev/null || \
     log_fatal "failed to configure"
 fi
 
 # Build.
 if [ $scan_build = 'no' ]; then
-  make clean
-  bear make --jobs=$jobs --load-average=$jobs || \
+  echo "=> make clean ..."
+  make clean >/dev/null
+  echo "=> make --jobs=$jobs --load-average=$jobs ..."
+  bear make --jobs=$jobs --load-average=$jobs >/dev/null || \
     log_fatal "failed to compile"
 fi
 

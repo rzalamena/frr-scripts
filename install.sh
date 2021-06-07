@@ -64,7 +64,7 @@ if [ -d build ]; then
 fi
 
 # Install FRR binaries.
-make install
+make install >/dev/null
 
 # Copy manual part.
 if [ ! -d /var/log/frr ]; then
