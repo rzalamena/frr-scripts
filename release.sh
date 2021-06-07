@@ -23,11 +23,13 @@
 
 usage() {
   cat <<EOF
-Usage: $0 [-h] [--help] [--jobs=NUMBER]
+Usage: $0 [-h] [--help] [--debug] [--jobs=NUMBER]
 
 Options:
+  --debug: build FRR with symbols.
   --help or -h: this help message.
   --jobs: amount of parallel build jobs (defaults to $jobs).
+  --systemd: build FRR with systemd support.
 EOF
   exit 1
 }
@@ -35,6 +37,7 @@ EOF
 # Quit on errors.
 set -e
 
+debug=0
 current_dir=$(pwd)
 build_dir="$current_dir/release"
 
@@ -60,7 +63,7 @@ default_flags=(
   --with-pkg-git-version
 )
 
-longopts='help,jobs:'
+longopts='debug,help,jobs:,systemd'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -71,6 +74,11 @@ fi
 set -- $options
 while [ $# -ne 0 ]; do
   case "$1" in
+    --debug)
+      debug=1
+      flags+=(--enable-dev-build)
+      shift
+      ;;
     --jobs)
       jobs="$2"
       shift 2
@@ -123,6 +131,19 @@ if [ -f "$build_dir/tools/frr.service" ]; then
   sudo install -o root -g root -m 0644 -D -v \
     "$build_dir/tools/frr.service" \
     "$install_dir/etc/systemd/system/frr.service"
+fi
+
+if [ $debug -ne 0 ]; then
+  echo "=> Debug enabled, copying source code"
+  files=$(\
+    (cd $current_dir; find * -type f) \
+    | egrep -v '^(build|dev|doc|alpine|tools|tests|release/doc)' \
+    | egrep -v '(/.deps/|/.libs/|*.o$|*.lo$|*.pyc$|release/frr-.+.tgz)')
+  for file in $files; do
+    sudo install -o root -g root -m 0644 -D -v \
+      "$current_dir/$file" \
+      "$install_dir/usr/share/frr/$file"
+  done
 fi
 
 # Generate tarball
