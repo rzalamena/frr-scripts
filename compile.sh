@@ -53,7 +53,6 @@ default_flags=(
   --prefix=/usr
   --localstatedir=/var/run/frr
   --sysconfdir=/etc/frr
-  --enable-exampledir=/usr/share/doc/frr/examples
   --sbindir=/usr/lib/frr
   --enable-user=frr
   --enable-group=frr
