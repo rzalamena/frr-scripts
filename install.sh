@@ -16,11 +16,10 @@
 
 usage() {
   cat <<EOF
-Usage: $0 [-h] [--help] [--systemd]
+Usage: $0 [-h] [--help]
 
 Options:
   --help or -h: this help message.
-  --systemd: install FRR systemd files.
 EOF
   exit 1
 }
@@ -28,7 +27,7 @@ EOF
 # Quit on errors.
 set -e
 
-longopts='help,systemd'
+longopts='help'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -36,15 +35,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-systemd=no
-
 set -- $options
 while [ $# -ne 0 ]; do
   case "$1" in
-    --systemd)
-      systemd=yes
-      shift
-      ;;
     -h | --help)
       usage
       shift
@@ -81,6 +74,7 @@ if [ ! -d /etc/frr ]; then
     /etc/frr/daemons
 fi
 
-if [ $systemd = 'yes' -a ! -f /etc/systemd/system/frr.service ]; then
-  install -m 644 ${srcdir}/tools/frr.service /etc/systemd/system/frr.service
+if [ -f ${srcdir}/tools/frr.service ]; then
+  install -m 644 ${srcdir}/tools/frr.service \
+    /etc/systemd/system/frr.service
 fi
