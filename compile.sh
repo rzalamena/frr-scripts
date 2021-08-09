@@ -170,9 +170,9 @@ fi
 
 # Build.
 if [ $scan_build = 'no' ]; then
-  make --jobs=$jobs --load-average=$jobs >/dev/null
+  make --jobs=$jobs --load-average=$jobs
 else
-  scan-build make --jobs=$jobs --load-average=$jobs >/dev/null
+  scan-build make --jobs=$jobs --load-average=$jobs
 fi
 
 exit 0
