@@ -78,3 +78,5 @@ if [ -f ${srcdir}/tools/frr.service ]; then
   install -m 644 ${srcdir}/tools/frr.service \
     /etc/systemd/system/frr.service
 fi
+
+sync
