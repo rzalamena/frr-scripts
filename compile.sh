@@ -22,6 +22,7 @@ Usage: $0
 
 Options:
   --asan: build FRR with address sanitizer.
+  --tsan: build FRR with thread sanitizer.
   --doc: configure FRR to enable documentation builds (requires sphinx).
   --fpm: build FRR with forwarding plane manager.
   --grpc: enable gRPC support.
@@ -65,7 +66,7 @@ default_flags=(
   --with-pkg-git-version
 )
 
-longopts='asan,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,soft-clean,systemd'
+longopts='asan,doc,fpm,grpc,help,jobs:,minimal,scan-build,snmp,soft-clean,tsan,systemd'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -122,6 +123,10 @@ while [ $# -ne 0 ]; do
       ;;
     --systemd)
       flags+=(--enable-systemd)
+      shift
+      ;;
+    --tsan)
+      flags+=(--enable-thread-sanitizer);
       shift
       ;;
     -h | --help)
