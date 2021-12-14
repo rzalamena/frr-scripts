@@ -80,3 +80,5 @@ if [ -f ${srcdir}/tools/frr.service ]; then
 fi
 
 sync
+
+exit 0

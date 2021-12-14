@@ -40,18 +40,12 @@ log_fatal() {
   exit 1
 }
 
-# Quit on errors.
-set -e
-
 currentdir=$(pwd)
-build_dir="$currentdir/dev"
+build_dir="$currentdir/build-dev"
 
 # Set variables.
 flags=()
-jobs=$(expr $(nproc) + 1)
-scan_build=no
-grpc=no
-soft_clean=no
+jobs=$(nproc)
 default_flags=(
   --enable-multipath=64
   --prefix=/usr
@@ -66,9 +60,12 @@ default_flags=(
   --enable-configfile-mask=0640
   --enable-logfile-mask=0640
   --enable-dev-build
+  --with-pkg-git-version
+  --enable-fpm
+  --enable-grpc
 )
 
-longopts='help,jobs:,soft-clean'
+longopts='help,jobs:'
 shortopts='h'
 options=$(getopt -u --longoptions "$longopts" "$shortopts" $*)
 if [ $? -ne 0 ]; then
@@ -83,10 +80,6 @@ while [ $# -ne 0 ]; do
       jobs="$2"
       shift 2
       ;;
-    --soft-clean)
-      soft_clean=yes
-      shift
-      ;;
     -h | --help)
       usage
       shift
@@ -97,21 +90,14 @@ while [ $# -ne 0 ]; do
   esac
 done
 
-which bear >/dev/null 2>/dev/null
-if [ $? -ne 0 ]; then
+bear_bin=$(which bear)
+if [ -z $bear_bin ]; then
   echo "'bear' was not found in your PATH"
   exit 1
 fi
 
 # Include the defaults.
 flags+=" ${default_flags[@]}"
-
-if [ "$soft_clean" = 'yes' ]; then
-  rm -rf aclocal.m4 autom4te.cache compile config.guess config.h.in{,~} \
-    config.sub depcomp install-sh ltmain.sh m4/ac m4/libtool.m4 \
-    m4/ltoptions.m4 m4/ltsugar.m4 m4/ltversion.m4 m4/lt~obsolete.m4 \
-    missing test-driver ylwrap configure Makefile.in $build_dir/Makefile
-fi
 
 # Bootstrap the configure file.
 if [ ! -f configure ]; then
@@ -120,27 +106,25 @@ fi
 
 # Always build out-of-tree.
 if [ "$build_dir" ]; then
-  mkdir -p "$build_dir"
+  mkdir -p $build_dir
 fi
 
-cd dev
+cd $build_dir
 
 # Configure if not configured.
 if [ ! -f Makefile ]; then
-  echo "=> configure ..."
+  echo "=> configure..."
   ../configure ${flags[@]} >/dev/null || \
     log_fatal "failed to configure"
 fi
 
 # Build.
-if [ $scan_build = 'no' ]; then
-  echo "=> make clean ..."
-  make clean >/dev/null
-  echo "=> make --jobs=$jobs --load-average=$jobs ..."
-  bear make --jobs=$jobs --load-average=$jobs >/dev/null || \
-    log_fatal "failed to compile"
-fi
+echo "=> make clean ..."
+make clean >/dev/null
 
-mv -v compile_commands.json ..
+cd ..
+echo "=> make --jobs=$jobs ..."
+bear make -C $build_dir --jobs=$jobs || \
+  log_fatal "failed to compile"
 
 exit 0
